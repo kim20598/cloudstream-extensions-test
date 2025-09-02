@@ -9,7 +9,7 @@ on:
   push:
     branches:
       # choose your default branch
-      - master
+      
       - main
     paths-ignore:
       - '*.md'
@@ -156,3 +156,6 @@ jobs:
           git add .
           git commit --amend -m "Build $GITHUB_SHA" || exit 0   # do not error if nothing to commit
           git push --force
+mit
+          # The next line is the crucial change. It uses the PAT secret to authenticate the push.
+          git push https://${{ secrets.AUTO_PAT }}@github.com/${{ github.repository }}.git builds --force
