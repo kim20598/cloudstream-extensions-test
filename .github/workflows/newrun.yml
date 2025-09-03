@@ -44,7 +44,7 @@ jobs:
         uses: android-actions/setup-android@v3.2.2
 
       - name: Access Secrets
-        envn:
+        env:
           TMDB_API: ${{ secrets.TMDB_API }}
           DUMP_API: ${{ secrets.DUMP_API }}
           DUMP_KEY: ${{ secrets.DUMP_KEY }}
