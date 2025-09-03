@@ -1,0 +1,9 @@
+{
+    "name": "hakim Repo2",
+    "iconUrl": "https://raw.githubusercontent.com/phisher98/TVVVV/refs/heads/main/Icons/RepoIcon.png",
+    "description": "hakim2 Repository",
+    "manifestVersion": 1,
+    "pluginLists": [
+      "https://raw.githubusercontent.com/kim20598/cloudstream-extensions-test/refs/heads/builds/plugins.json"
+    ]
+}
