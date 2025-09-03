@@ -5,6 +5,7 @@ import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import com.lagradost.cloudstream3.network.DdosGuardKiller
 import com.lagradost.cloudstream3.utils.*
 import okhttp3.FormBody
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
 class NOXXProvider : MainAPI() {
@@ -18,7 +19,7 @@ class NOXXProvider : MainAPI() {
     )
     private var ddosGuardKiller = DdosGuardKiller(true)
 
-    private suspend fun queryTVApi(count: Int, query: String): String {
+    private suspend fun queryTVApi(count: Int, query: String): org.jsoup.nodes.Document {
         val body = FormBody.Builder()
             .addEncoded("no", "$count")
             .addEncoded("gpar", query)
@@ -26,23 +27,25 @@ class NOXXProvider : MainAPI() {
             .addEncoded("spar", "series_added_date desc")
             .build()
 
-        return app.post(
+        val response = app.post(
             "$mainUrl/fetch.php",
             requestBody = body,
             interceptor = ddosGuardKiller,
             referer = "$mainUrl/"
-        ).text
+        )
+        return Jsoup.parse(response.text)
     }
 
-    private suspend fun queryTVsearchApi(query: String): String {
-        return app.post(
+    private suspend fun queryTVsearchApi(query: String): org.jsoup.nodes.Document {
+        val response = app.post(
             "$mainUrl/livesearch.php",
             data = mapOf(
                 "searchVal" to query
             ),
             interceptor = ddosGuardKiller,
             referer = "$mainUrl/"
-        ).text
+        )
+        return Jsoup.parse(response.text)
     }
 
     private val scifiShows = "Sci-Fi"
@@ -67,13 +70,12 @@ class NOXXProvider : MainAPI() {
     ): HomePageResponse {
         val itemsPerPage = 48
         val offset = page * itemsPerPage
-        val html = queryTVApi(offset, request.data)
-        val document = app.parse(html)
+        val document = queryTVApi(offset, request.data)
         val home = document.select("a.block").mapNotNull {
             it.toSearchResult()
         }
         val hasNext = home.size >= itemsPerPage
-        return HomePageResponse(arrayListOf(HomePageList(request.name, home)), hasNext = hasNext)
+        return HomePageResponse(listOf(HomePageList(request.name, home)), hasNext = hasNext)
     }
 
     private fun Element.toSearchResult(): SearchResponse? {
@@ -89,8 +91,7 @@ class NOXXProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val html = queryTVsearchApi(query)
-        val document = app.parse(html)
+        val document = queryTVsearchApi(query)
         return document.select("a[href^=\"/tv\"]").mapNotNull {
             val title = it.selectFirst("div > h2")?.text()?.trim() ?: return@mapNotNull null
             val href = fixUrl("$mainUrl${it.attr("href")}")
