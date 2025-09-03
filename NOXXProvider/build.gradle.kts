@@ -1,13 +1,10 @@
-plugins {
-    id("java-library")
-    id("org.jetbrains.kotlin.jvm")
-}
-
 // use an integer for version numbers
 version = 2
 
+
 cloudstream {
     // All of these properties are optional, you can safely remove them
+
     description = "HD TV Shows (Not all links are working because of a unsolvable issue)"
     language = "en"
     authors = listOf("LikDev-256,Phisher98")
@@ -32,17 +29,8 @@ cloudstream {
     isCrossPlatform = false
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
 dependencies {
     // FIXME remove this when crossplatform is fully supported
     val cloudstream by configurations
     cloudstream("com.lagradost:cloudstream3:pre-release")
-    
-    // ADD THESE DEPENDENCIES:
-    implementation("org.jsoup:jsoup:1.14.3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1")
 }
