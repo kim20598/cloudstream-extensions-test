@@ -5,6 +5,7 @@ import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import com.lagradost.cloudstream3.network.DdosGuardKiller
 import com.lagradost.cloudstream3.utils.*
 import okhttp3.FormBody
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
 class NOXXProvider : MainAPI() {
@@ -18,8 +19,8 @@ class NOXXProvider : MainAPI() {
     )
     private var ddosGuardKiller = DdosGuardKiller(true)
 
-    // API call for main page (paginated)
-    private suspend fun queryTVApi(count: Int, query: String): AppResponse {
+    // API call for main page (paginated) - returns a Jsoup Document
+    private suspend fun queryTVApi(count: Int, query: String): org.jsoup.nodes.Document {
         val body = FormBody.Builder()
             .addEncoded("no", "$count")
             .addEncoded("gpar", query)
@@ -27,17 +28,18 @@ class NOXXProvider : MainAPI() {
             .addEncoded("spar", "series_added_date desc")
             .build()
 
-        return app.post(
+        val response = app.post(
             "$mainUrl/fetch.php",
             requestBody = body,
             interceptor = ddosGuardKiller,
             referer = "$mainUrl/"
         )
+        return Jsoup.parse(response.text)
     }
 
-    // API call for search
-    private suspend fun queryTVsearchApi(query: String): AppResponse {
-        return app.post(
+    // API call for search - returns a Jsoup Document
+    private suspend fun queryTVsearchApi(query: String): org.jsoup.nodes.Document {
+        val response = app.post(
             "$mainUrl/livesearch.php",
             data = mapOf(
                 "searchVal" to query
@@ -45,6 +47,7 @@ class NOXXProvider : MainAPI() {
             interceptor = ddosGuardKiller,
             referer = "$mainUrl/"
         )
+        return Jsoup.parse(response.text)
     }
 
     // Define main page categories
@@ -68,14 +71,14 @@ class NOXXProvider : MainAPI() {
         page: Int,
         request: MainPageRequest
     ): HomePageResponse {
-        val itemsPerPage = 48 // Confirm this number from the website
+        val itemsPerPage = 48
         val offset = page * itemsPerPage
         val category = request.data
 
-        val document = queryTVApi(offset, category).document
+        val document = queryTVApi(offset, category)
         val items = document.select("a.block").mapNotNull { it.toSearchResult() }
 
-        // Check if this is the last page: if we got fewer items than the page limit
+        // Check if this is the last page
         val hasNext = items.size >= itemsPerPage
 
         return HomePageResponse(
@@ -98,7 +101,7 @@ class NOXXProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val document = queryTVsearchApi(query).document
+        val document = queryTVsearchApi(query)
         return document.select("a[href^=\"/tv\"]").mapNotNull {
             val title = it.selectFirst("div > h2")?.text()?.trim() ?: return@mapNotNull null
             val href = fixUrl("$mainUrl${it.attr("href")}")
@@ -135,13 +138,13 @@ class NOXXProvider : MainAPI() {
                 val episodeNumber = numberRegex.find(episodeText)?.value?.toInt()
                 val episodeName = episodeElement.ownText().trim().removePrefix("Episode ")
 
+                // Use the correct newEpisode builder function
                 episodes.add(
-                    Episode(
-                        data = episodeHref,
-                        name = episodeName,
-                        season = seasonNumber,
-                        episode = episodeNumber
-                    )
+                    newEpisode(episodeHref) {
+                        this.name = episodeName
+                        this.season = seasonNumber
+                        this.episode = episodeNumber
+                    }
                 )
             }
         }
@@ -156,7 +159,6 @@ class NOXXProvider : MainAPI() {
         }
     }
 
-    // **CRITICALLY UPDATED FUNCTION**
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
@@ -169,18 +171,14 @@ class NOXXProvider : MainAPI() {
         val iframes = doc.select("iframe[src]").map { it.attr("src").trim() }.filter { it.isNotBlank() }
 
         if (iframes.isEmpty()) {
-            // Log a warning if no iframes are found for debugging
             return false
         }
 
         // For each iframe found, let CloudStream's extractor system handle it.
-        // This will automatically support Dood, Streamtape, Fembed, etc.
         iframes.forEach { iframeUrl ->
-            loadExtractor(iframeUrl, url, subtitleCallback, callback)
+            loadExtractor(iframeUrl, data, subtitleCallback, callback)
         }
 
-        // Return true indicating we found potential sources to process.
-        // The extractors will call the 'callback' function asynchronously for each valid link they find.
         return true
     }
 }
