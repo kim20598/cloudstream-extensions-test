@@ -155,4 +155,4 @@ jobs:
           git config --local user.name "GitHub Actions"
           git add .
           git commit --amend -m "Build $GITHUB_SHA" || exit 0   # do not error if nothing to commit
-          git push https://${{ secrets.AUTO_PAT }}@github.com/${{ github.repository }}.git builds --force
+          git push --force
