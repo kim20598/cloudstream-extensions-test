@@ -1,6 +1,5 @@
 package com.mycima
 
-
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import com.lagradost.cloudstream3.utils.AppUtils.parseJson
@@ -36,16 +35,16 @@ class MyCima : MainAPI() {
                 .replace("مشاهدة|فيلم|مسلسل|مترجم".toRegex(), "")
                 .replace("( نسخة مدبلجة )", " ( نسخة مدبلجة ) ")
         // If you need to differentiate use the url.
-        return MovieSearchResponse(
+        return newMovieSearchResponse(
                 title,
                 url.attr("href"),
-                this@MyCima.name,
                 if(url.attr("title").contains("فيلم")) TvType.Movie else TvType.TvSeries,
-                posterUrl,
-                year?.getIntFromText(),
-                null,
-        )
+        ) {
+            this.posterUrl = posterUrl
+            this.year = year?.getIntFromText()
+        }
     }
+    
     override val mainPage = mainPageOf(
             "$mainUrl/movies/top/page/0" to "Top Movies",
             "$mainUrl/movies/recent/page/0" to "Recently Added Movies",
@@ -142,11 +141,11 @@ class MyCima : MainAPI() {
             doc.select("div.Seasons--Episodes div.Episodes--Seasons--Episodes a")
                     .apmap {
                         episodes.add(
-                                Episode(
-                                        it.attr("href"),
-                                        it.text(),
-                                        season,
-                                        it.text().getIntFromText(),
+                                newEpisode(
+                                        it.text(),            // name
+                                        it.attr("href"),      // data
+                                        season,               // season
+                                        it.text().getIntFromText(), // episode
                                 )
                         )
                     }
@@ -196,11 +195,11 @@ class MyCima : MainAPI() {
                         val document = Jsoup.parse(json.output?.replace("""\""", ""))
                         document.select("a").map {
                             episodes.add(
-                                    Episode(
-                                            it.attr("href"),
-                                            it.text(),
-                                            season,
-                                            it.text().getIntFromText(),
+                                    newEpisode(
+                                            it.text(),            // name
+                                            it.attr("href"),      // data
+                                            season,               // season
+                                            it.text().getIntFromText(), // episode
                                     )
                             )
                         }
@@ -217,11 +216,11 @@ class MyCima : MainAPI() {
                     seasonsite.select("div.Seasons--Episodes div.Episodes--Seasons--Episodes a")
                             .map {
                                 episodes.add(
-                                        Episode(
-                                                it.attr("href"),
-                                                it.text(),
-                                                fseason,
-                                                it.text().getIntFromText(),
+                                        newEpisode(
+                                                it.text(),            // name
+                                                it.attr("href"),      // data
+                                                fseason,              // season
+                                                it.text().getIntFromText(), // episode
                                         )
                                 )
                             }
@@ -273,11 +272,11 @@ class MyCima : MainAPI() {
                                 val document = Jsoup.parse(json.output?.replace("""\""", ""))
                                 document.select("a").map {
                                     episodes.add(
-                                            Episode(
-                                                    it.attr("href"),
-                                                    it.text(),
-                                                    fseason,
-                                                    it.text().getIntFromText(),
+                                            newEpisode(
+                                                    it.text(),            // name
+                                                    it.attr("href"),      // data
+                                                    fseason,              // season
+                                                    it.text().getIntFromText(), // episode
                                             )
                                     )
                                 }
@@ -317,12 +316,11 @@ class MyCima : MainAPI() {
                 val videoSource = doc.select("script:containsData(sources)").firstOrNull()?.data()?.let { Regex("""sources:\s*\[["']([^"']+)["']]\s*,""").find(it)?.groupValues?.get(1) }
                 Log.d("videoSourceuplouad","${videoSource}")
                 callback.invoke(
-                        ExtractorLink(
-                                this.name,
+                        newExtractorLink(
                                 this.name,
                                 videoSource!!,
                                 url,
-                                quality = 0
+                                Qualities.Unknown.value,
                         )
                 )
             }
@@ -333,12 +331,11 @@ class MyCima : MainAPI() {
             it.select("a").map { linkElement ->
                 Log.d("linkElement","${linkElement}")
                 callback.invoke(
-                        ExtractorLink(
-                                this.name,
+                        newExtractorLink(
                                 this.name,
                                 linkElement.attr("href"),
                                 this.mainUrl,
-                                quality = linkElement.select("resolution").text().getIntFromText() ?: 0
+                                linkElement.select("resolution").text().getIntFromText() ?: Qualities.Unknown.value,
                         )
                 )
             }
