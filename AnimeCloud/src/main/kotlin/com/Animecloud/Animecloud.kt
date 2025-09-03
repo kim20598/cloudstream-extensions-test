@@ -6,7 +6,7 @@ import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addImdbUrl
 
 class Animecloud : MainAPI() {
-    override var mainUrl              = "https://fireani.me"
+    override var mainUrl              = "https://kissanime.ba"
     override var name                 = "Animecloud"
     override val hasMainPage          = true
     override var lang                 = "de"
