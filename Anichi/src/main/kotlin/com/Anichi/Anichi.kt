@@ -71,7 +71,7 @@ open class Anichi : MainAPI() {
     override val supportedTypes = setOf(TvType.Anime, TvType.AnimeMovie)
 
     private val popularTitle = "Popular"
-    private val animeRecentTitle = "Latest Anime"
+    private val animeRecentTitle = "Latest Animee"
     private val donghuaRecentTitle = "Latest Donghua"
     private val movieTitle = "Movie"
     @RequiresApi(Build.VERSION_CODES.O)
