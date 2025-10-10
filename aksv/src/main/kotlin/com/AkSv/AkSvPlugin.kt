@@ -1,12 +1,21 @@
-package com.AkSv
+package com.aksv
 
-import android.content.Context
+import com.lagradost.cloudstream3.extractors.Okrulink
+import com.lagradost.cloudstream3.extractors.Vidguardto2
+import com.lagradost.cloudstream3.plugins.BasePlugin
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
-import com.lagradost.cloudstream3.plugins.Plugin
 
 @CloudstreamPlugin
-class AkSvPlugin : Plugin() {
-    override fun load(context: Context) {
+class AkSvPlugin : BasePlugin() {
+    override fun load() {
+        // register the new provider
         registerMainAPI(AkSvProvider())
+
+        // keep every extractor the exact same
+        registerExtractorAPI(swiftplayers())
+        registerExtractorAPI(StreamWishExtractor())
+        registerExtractorAPI(FilemoonV2())
+        registerExtractorAPI(Vidguardto2())
+        registerExtractorAPI(Okrulink())
     }
 }
