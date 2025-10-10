@@ -1,12 +1,12 @@
-package com.HiAnime
+package com.aksv
 
 import com.lagradost.cloudstream3.plugins.BasePlugin
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 
 @CloudstreamPlugin
-class HiAnimeProviderPlugin : BasePlugin() {
+class AkSvPlugin : BasePlugin() {
     override fun load() {
-        registerMainAPI(HiAnime())
+        registerMainAPI(AkSvProvider())
         registerExtractorAPI(Megacloud())
     }
 }
