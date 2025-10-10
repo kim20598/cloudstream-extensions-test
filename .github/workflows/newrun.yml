@@ -91,7 +91,7 @@ jobs:
           DaddyLive: ${{ secrets.DaddyLive }}
           MOVIEBOX_SECRET_KEY_ALT: ${{ secrets.MOVIEBOX_SECRET_KEY_ALT }}
           MOVIEBOX_SECRET_KEY_DEFAULT: ${{ secrets.MOVIEBOX_SECRET_KEY_DEFAULT }}
-          AKWAM_API: ${{ secrets.AKWAM_API }}
+          AKWAM_API: "dummy"
         run: |
           cd $GITHUB_WORKSPACE/src
           echo TMDB_API=$TMDB_API >> local.properties
@@ -139,6 +139,7 @@ jobs:
           echo DaddyLive=$DaddyLive >> local.properties
           echo MOVIEBOX_SECRET_KEY_DEFAULT=$MOVIEBOX_SECRET_KEY_DEFAULT >> local.properties
           echo MOVIEBOX_SECRET_KEY_ALT=$MOVIEBOX_SECRET_KEY_ALT >> local.properties
+          echo AKWAM_API="dummy" >> local.properties
       - name: Build Plugins
         run: |
           cd $GITHUB_WORKSPACE/src
