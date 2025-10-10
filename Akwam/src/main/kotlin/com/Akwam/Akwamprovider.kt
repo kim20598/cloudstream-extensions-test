@@ -5,7 +5,7 @@ import com.lagradost.cloudstream3.utils.loadExtractor
 import org.jsoup.Jsoup
 
 class AkwamProvider : MainAPI() {
-    override var mainUrl          = BuildConfig.Akwam_API
+    override var mainUrl          = BuildConfig.AKWAM_API
     override var name             = "Akwam"
     override val hasMainPage      = true
     override val supportedTypes   = setOf(TvType.Movie, TvType.TvSeries, TvType.Anime, TvType.OVA)
