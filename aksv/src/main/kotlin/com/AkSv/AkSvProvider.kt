@@ -4,7 +4,7 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 
 class AkSvProvider : MainAPI() {
-    override var mainUrl              = "https://ak.sv"
+    override var mainUrl              = BuildConfig.AKSV_API
     override var name                 = "AkSv"
     override val hasMainPage          = true
     override val supportedTypes       = setOf(TvType.Anime, TvType.OVA)
