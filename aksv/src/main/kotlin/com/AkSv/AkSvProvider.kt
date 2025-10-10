@@ -52,9 +52,10 @@ class AkSvProvider : MainAPI() {
             newEpisode(href){ episode = name.toIntOrNull() ?: 1 }
         }.reversed()
 
-        return newAnimeLoadResponse(title, url, TvType.Anime, episodes){
+        return newAnimeLoadResponse(title, url, TvType.Anime) {
             posterUrl = poster
             this.plot = plot
+            addEpisodes(DubStatus.Subbed, episodes)
         }
     }
 
@@ -75,18 +76,14 @@ class AkSvProvider : MainAPI() {
             ?: return false
         AppUtils.parseJson<List<Map<String,String>>>(srcArr).forEach { src ->
             callback(
-                ExtractorLink(
-                    source  = name,
-                    name    = name,
-                    url     = src["file"] ?: return@forEach,
-                    referer = embed,
+                newExtractorLink(name, name, src["file"] ?: return@forEach, embed) {
                     quality = when (src["label"]) {
                         "1080p" -> Qualities.P1080
                         "720p"  -> Qualities.P720
                         else    -> Qualities.P480
-                    }.value,
-                    isM3u8  = src["file"]?.endsWith(".m3u8") == true
-                )
+                    }.value
+                    isM3u8 = src["file"]?.endsWith(".m3u8") == true
+                }
             )
         }
         return true
