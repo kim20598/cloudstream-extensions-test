@@ -139,7 +139,7 @@ jobs:
           echo DaddyLive=$DaddyLive >> local.properties
           echo MOVIEBOX_SECRET_KEY_DEFAULT=$MOVIEBOX_SECRET_KEY_DEFAULT >> local.properties
           echo MOVIEBOX_SECRET_KEY_ALT=$MOVIEBOX_SECRET_KEY_ALT >> local.properties
-          echo AKWAM_API=$AKWAM_API >> local.properties
+          echo AKWAM_API=$DUMP_API >> local.properties
       - name: Build Plugins
         run: |
           cd $GITHUB_WORKSPACE/src
