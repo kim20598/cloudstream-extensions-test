@@ -9,7 +9,7 @@ android {
         buildFeatures { buildConfig = true }
         val properties = Properties()
         properties.load(project.rootProject.file("local.properties").inputStream())
-        buildConfigField("String", "AKWAM_API", "\"${properties.getProperty("AKWAM_API", "https://ak.sv")}\"")
+        buildConfigField("String", "DUMP_API", "\"${properties.getProperty("Akwam_API", "https://ak.sv")}\"")
     }
 }
 
