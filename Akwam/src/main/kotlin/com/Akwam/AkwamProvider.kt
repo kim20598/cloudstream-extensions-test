@@ -4,7 +4,7 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.loadExtractor
 
 class AkwamProvider : MainAPI() {
-    override var mainUrl          = BuildConfig.AKWAM_API
+    override var mainUrl          = BuildConfig.DUMP_API
     override var name             = "Akwam"
     override val hasMainPage      = true
     override val supportedTypes   = setOf(TvType.Movie, TvType.TvSeries, TvType.Anime, TvType.OVA)
